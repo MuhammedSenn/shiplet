@@ -19,6 +19,9 @@ from ai_dev_agent.config import get_settings
 from ai_dev_agent.graph.pipeline import build_default_orchestrator
 from ai_dev_agent.graph.state import AgentState, RunOptions
 from ai_dev_agent.models import ExecutionReport, Task
+from ai_dev_agent.observability.logging import new_trace_id
+from ai_dev_agent.repo.analyzer import RepoAnalyzer
+from ai_dev_agent.repo.manager import RepoManager
 
 app = typer.Typer(add_completion=False, help="AI Development Agent")
 _console = Console()
@@ -84,6 +87,32 @@ def issue(
     _print_summary(report)
 
 
+@app.command()
+def analyze(
+    repo: str = typer.Option(..., "--repo", help="Repository URL (must be allowlisted)."),
+    branch: str = typer.Option("main", "--branch", help="Base branch to analyze."),
+    requirement: str = typer.Option(
+        "", "--requirement", help="Optional requirement used to rank the relevant files."
+    ),
+) -> None:
+    _print_banner()
+    settings = get_settings()
+    manager = RepoManager(settings)
+    trace_id = new_trace_id()
+    try:
+        workspace = manager.prepare(repo, branch, trace_id)
+        analysis = RepoAnalyzer(top_n=settings.context_top_n_files).analyze(workspace, requirement)
+        _console.print(
+            Panel(
+                analysis.model_dump_json(by_alias=True, indent=2),
+                title="Repository Analysis",
+                border_style="cyan",
+            )
+        )
+    finally:
+        manager.cleanup(trace_id)
+
+
 def _options(
     dry_run: bool, fail_on_test: bool, review: bool, issue_number: int | None = None
 ) -> RunOptions:
@@ -104,7 +133,15 @@ def _execute(task: Task, options: RunOptions, review: bool) -> ExecutionReport:
 
 def _interactive_approver(state: AgentState) -> bool:
     diff = subprocess.run(
-        ["git", "-C", str(state["workspace"]), "--no-pager", "diff"],
+        [
+            "git",
+            "-C",
+            str(state["workspace"]),
+            "--no-pager",
+            "diff",
+            "--",
+            *state["change"].changed_files,
+        ],
         capture_output=True,
         text=True,
         check=False,
@@ -118,7 +155,6 @@ def _interactive_approver(state: AgentState) -> bool:
 def _print_banner() -> None:
     art = figlet_format("Shiplet Agent", font="slant").rstrip("\n")
     _console.print(Text(art, style="bold cyan"))
-    _console.print(Text("   Task to Pull Request", style="dim"))
     _console.print()
 
 

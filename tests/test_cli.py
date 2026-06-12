@@ -34,7 +34,6 @@ def test_cli_runs_pipeline_and_prints_report(
 
     result = runner.invoke(cli.app, ["run", "--task", str(task_file)])
     assert result.exit_code == 0
-    assert "Task to Pull Request" in result.stdout
     assert "success" in result.stdout
     assert "TASK-1" in result.stdout
 
