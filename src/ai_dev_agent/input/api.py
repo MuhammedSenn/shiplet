@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from ai_dev_agent.config import get_settings
 from ai_dev_agent.graph.pipeline import Orchestrator, build_default_orchestrator
+from ai_dev_agent.graph.state import RunOptions
 from ai_dev_agent.models import ExecutionReport, Task
 
 app = FastAPI(title="AI Development Agent")
@@ -51,7 +52,7 @@ def github_issue(
         title=event.issue.title,
         description=_issue_description(event),
     )
-    return orchestrator.run(task)
+    return orchestrator.run(task, RunOptions(issue_number=event.issue.number))
 
 
 def _issue_description(event: GitHubIssueEvent) -> str:

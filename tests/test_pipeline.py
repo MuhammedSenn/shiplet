@@ -83,6 +83,7 @@ class FakeGitProvider:
     def __init__(self) -> None:
         self.pushed = False
         self.pr_calls = 0
+        self.last_draft: PullRequestDraft | None = None
 
     def create_branch(self, workspace: Path, branch: str) -> None:
         pass
@@ -105,6 +106,7 @@ class FakeGitProvider:
         self, repository_url: str, draft: PullRequestDraft
     ) -> tuple[PullRequestInfo, bool]:
         self.pr_calls += 1
+        self.last_draft = draft
         return (
             PullRequestInfo(
                 url="https://github.com/o/r/pull/1", branch=draft.head_branch, number=1
@@ -162,6 +164,13 @@ def test_max_attempts_publishes_with_warning() -> None:
     assert report.status == "tests_failed"
     assert report.pr is not None
     assert agent.calls == 2
+
+
+def test_issue_number_adds_closes_to_pr_body() -> None:
+    git = FakeGitProvider()
+    make_orchestrator(["passed"], git=git).run(TASK, RunOptions(issue_number=4))
+    assert git.last_draft is not None
+    assert "Closes #4" in git.last_draft.body
 
 
 def test_dry_run_skips_pr() -> None:

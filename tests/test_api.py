@@ -9,9 +9,11 @@ class FakeOrchestrator:
     def __init__(self, report: ExecutionReport) -> None:
         self.report = report
         self.last_task: Task | None = None
+        self.last_options: RunOptions | None = None
 
     def run(self, task: Task, options: RunOptions | None = None) -> ExecutionReport:
         self.last_task = task
+        self.last_options = options
         return self.report
 
 
@@ -55,3 +57,5 @@ def test_github_issue_webhook_injects_repository_context() -> None:
     assert fake.last_task is not None
     assert "Repository: https://github.com/o/r" in fake.last_task.description
     assert "Branch: develop" in fake.last_task.description
+    assert fake.last_options is not None
+    assert fake.last_options.issue_number == 7

@@ -130,6 +130,20 @@ def test_render_pr_body_has_required_sections() -> None:
     assert "- app.py" in body
 
 
+def test_render_pr_body_links_issue() -> None:
+    body = render_pr_body(
+        summary="s",
+        task_id="4",
+        changes=["x"],
+        test_command="pytest",
+        test_status="Passed",
+        model="gpt-5.2",
+        changed_files=["registration.py"],
+        closes_issue=4,
+    )
+    assert "Closes #4" in body
+
+
 def test_naming_helpers() -> None:
     assert build_branch_name("TASK-123", "Add email validation API") == (
         "ai-agent/TASK-123-add-email-validation-api"

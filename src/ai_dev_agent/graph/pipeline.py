@@ -240,6 +240,7 @@ class Orchestrator:
             test_status="Passed" if passed else "Failed",
             model=change.model,
             changed_files=change.changed_files,
+            closes_issue=state["options"].issue_number,
         )
         draft = PullRequestDraft(
             title=title, body=body, head_branch=branch, base_branch=parsed.base_branch

@@ -17,11 +17,12 @@ def render_pr_body(
     test_status: str,
     model: str,
     changed_files: Sequence[str],
+    closes_issue: int | None = None,
 ) -> str:
     template = (_TEMPLATES_DIR / "pr_body.md").read_text(encoding="utf-8")
     changes_block = "\n".join(f"- {item}" for item in changes) or "- (none)"
     files_block = "\n".join(f"- {path}" for path in changed_files) or "- (none)"
-    return (
+    body = (
         template.replace("{{SUMMARY}}", summary)
         .replace("{{TASK_ID}}", task_id)
         .replace("{{CHANGES}}", changes_block)
@@ -30,3 +31,6 @@ def render_pr_body(
         .replace("{{MODEL}}", model)
         .replace("{{CHANGED_FILES}}", files_block)
     )
+    if closes_issue is not None:
+        body = f"{body}\nCloses #{closes_issue}\n"
+    return body

@@ -24,6 +24,7 @@ class RunOptions:
     fail_on_test: bool = False
     require_approval: bool = False
     max_fix_attempts: int = 2
+    issue_number: int | None = None
 
 
 class AgentState(TypedDict, total=False):
