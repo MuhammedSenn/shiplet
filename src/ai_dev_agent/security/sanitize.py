@@ -6,12 +6,23 @@ unexpected URL shapes. These return cleaned values or raise ``ValueError``.
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from urllib.parse import urlparse
 
 _REPO_URL_RE = re.compile(r"^https://[A-Za-z0-9.\-]+/[A-Za-z0-9._\-]+/[A-Za-z0-9._\-]+/?$")
 _BRANCH_RE = re.compile(r"^[A-Za-z0-9._\-/]+$")
+_SECRET_ENV_MARKERS = ("TOKEN", "SECRET", "PASSWORD", "API_KEY")
+
+
+def safe_subprocess_env() -> dict[str, str]:
+    """Environment for child processes with secret-bearing variables removed."""
+    return {
+        key: value
+        for key, value in os.environ.items()
+        if not any(marker in key.upper() for marker in _SECRET_ENV_MARKERS)
+    }
 
 
 def validate_repo_url(url: str) -> str:

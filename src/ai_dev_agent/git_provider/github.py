@@ -18,12 +18,20 @@ from ai_dev_agent.errors import AuthorizationError, GitPushError, InsufficientCh
 from ai_dev_agent.git_provider.base import PullRequestApi, PullRequestDraft
 from ai_dev_agent.models import PullRequestInfo
 from ai_dev_agent.observability.logging import redact
+from ai_dev_agent.security.sanitize import safe_subprocess_env
 
 GitRunner = Callable[[list[str], Path], "subprocess.CompletedProcess[str]"]
 
 
 def _default_git_runner(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, check=False)
+    return subprocess.run(
+        ["git", *args],
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        check=False,
+        env=safe_subprocess_env(),
+    )
 
 
 def _owner_repo(repository_url: str) -> str:

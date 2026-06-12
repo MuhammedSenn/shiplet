@@ -19,13 +19,24 @@ from ai_dev_agent.errors import (
     RepositoryNotAllowedError,
 )
 from ai_dev_agent.observability.logging import redact
-from ai_dev_agent.security.sanitize import validate_branch_name, validate_repo_url
+from ai_dev_agent.security.sanitize import (
+    safe_subprocess_env,
+    validate_branch_name,
+    validate_repo_url,
+)
 
 GitRunner = Callable[[list[str], Path | None], "subprocess.CompletedProcess[str]"]
 
 
 def _default_runner(args: list[str], cwd: Path | None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, check=False)
+    return subprocess.run(
+        ["git", *args],
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        check=False,
+        env=safe_subprocess_env(),
+    )
 
 
 class RepoManager:

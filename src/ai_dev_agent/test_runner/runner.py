@@ -14,13 +14,20 @@ from pathlib import Path
 
 from ai_dev_agent.errors import TestExecutionError
 from ai_dev_agent.models import TestResult
+from ai_dev_agent.security.sanitize import safe_subprocess_env
 
 CommandRunner = Callable[[list[str], Path, int], "subprocess.CompletedProcess[str]"]
 
 
 def _default_runner(args: list[str], cwd: Path, timeout: int) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        args, cwd=cwd, capture_output=True, text=True, timeout=timeout, check=False
+        args,
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
+        env=safe_subprocess_env(),
     )
 
 

@@ -4,6 +4,7 @@ import pytest
 
 from ai_dev_agent.security.sanitize import (
     is_within,
+    safe_subprocess_env,
     validate_branch_name,
     validate_repo_url,
 )
@@ -43,3 +44,17 @@ def test_validate_branch_name_rejects(bad: str) -> None:
 def test_is_within(tmp_path: Path) -> None:
     assert is_within(tmp_path, tmp_path / "a" / "b")
     assert not is_within(tmp_path, tmp_path / ".." / "evil")
+
+
+def test_safe_subprocess_env_drops_secrets(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", "secret-token")
+    monkeypatch.setenv("OPENAI_API_KEY", "secret-key")
+    monkeypatch.setenv("DB_PASSWORD", "secret-pw")
+    monkeypatch.setenv("PATH", "/usr/bin")
+
+    env = safe_subprocess_env()
+
+    assert "GITHUB_TOKEN" not in env
+    assert "OPENAI_API_KEY" not in env
+    assert "DB_PASSWORD" not in env
+    assert env.get("PATH") == "/usr/bin"

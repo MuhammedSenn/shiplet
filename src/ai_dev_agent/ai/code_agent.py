@@ -19,7 +19,7 @@ from ai_dev_agent.ai.provider import LLMProvider
 from ai_dev_agent.errors import InsufficientChangeError, ScopeViolationError
 from ai_dev_agent.models import ParsedTask, RepoAnalysis
 from ai_dev_agent.security.sanitize import is_within
-from ai_dev_agent.security.secrets import is_sensitive_path
+from ai_dev_agent.security.secrets import contains_secret, is_sensitive_path
 
 
 @dataclass
@@ -107,6 +107,8 @@ class CodeAgent:
                 raise ScopeViolationError(
                     f"edit targets a file outside the analyzed scope: {edit.path}"
                 )
+            if contains_secret(edit.new_content):
+                raise ScopeViolationError(f"generated content for {edit.path} contains a secret")
             if relative.suffix == ".py":
                 self._check_python_syntax(edit)
         if _requires_tests(parsed) and not any(_is_test_path(edit.path) for edit in edits):

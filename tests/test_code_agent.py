@@ -104,6 +104,19 @@ def test_missing_required_test_rejected(tmp_path: Path) -> None:
         CodeAgent(FakeLLM(body)).generate(repo, make_parsed(), make_analysis())
 
 
+def test_secret_in_generated_content_rejected(tmp_path: Path) -> None:
+    repo = make_repo(tmp_path)
+    secret = "ghp_" + "a" * 30
+    body = payload(
+        [
+            {"path": "app.py", "newContent": f"TOKEN = '{secret}'\n"},
+            {"path": "tests/test_app.py", "newContent": "def test_x():\n    assert True\n"},
+        ]
+    )
+    with pytest.raises(ScopeViolationError):
+        CodeAgent(FakeLLM(body)).generate(repo, make_parsed(), make_analysis())
+
+
 def test_python_syntax_error_rejected(tmp_path: Path) -> None:
     repo = make_repo(tmp_path)
     body = payload(

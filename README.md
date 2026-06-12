@@ -71,15 +71,16 @@ Optional (defaults shown):
 ## 6. How to Run
 
 ```bash
-# Activate the venv so console scripts resolve reliably.
-source .venv/bin/activate
+# CLI via the launcher (reliable; independent of the editable install).
+./run.sh run --task task.json
+./run.sh run --task task.json --dry-run        # everything except push and PR
+./run.sh run --task task.json --fail-on-test   # do not open a PR if tests fail
 
-# CLI: run the full pipeline from a task JSON file (or '-' for stdin).
-agent run --task task.json
-agent run --task task.json --dry-run        # everything except push and PR
-agent run --task task.json --fail-on-test   # do not open a PR if tests fail
+# Equivalent console script (after `source .venv/bin/activate`):
+#   agent run --task task.json
 
 # REST API: POST /api/tasks and a GitHub Issue webhook at /api/webhooks/github/issues.
+source .venv/bin/activate
 uvicorn ai_dev_agent.input.api:app --reload
 ```
 

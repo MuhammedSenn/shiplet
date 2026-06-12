@@ -1,0 +1,5 @@
+{
+  "taskId": "TASK-200",
+  "title": "Add email validation to user registration",
+  "description": "Repository: https://github.com/MuhammedSenn/demo-user-service-python\nBranch: main\n\nRequirement:\nAdd email format validation to register_user in registration.py. Raise ValueError with message 'Invalid email format' when the email is invalid.\n\nAcceptance Criteria:\n- Invalid email raises ValueError\n- Existing valid registration keeps working\n- Add or update unit tests"
+}
