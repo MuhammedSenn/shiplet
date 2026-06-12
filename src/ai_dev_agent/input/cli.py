@@ -7,8 +7,10 @@ import sys
 from pathlib import Path
 
 import typer
+from pyfiglet import figlet_format
 from rich.console import Console
 from rich.panel import Panel
+from rich.text import Text
 
 from ai_dev_agent.config import get_settings
 from ai_dev_agent.graph.pipeline import build_default_orchestrator
@@ -39,13 +41,7 @@ def run(
         False, "--json", help="Also print the raw execution report as JSON."
     ),
 ) -> None:
-    _console.print(
-        Panel.fit(
-            "[bold cyan]AI Development Agent[/bold cyan]\n"
-            "[dim]Turning a task into a Pull Request[/dim]",
-            border_style="cyan",
-        )
-    )
+    _print_banner()
     raw = sys.stdin.read() if task == "-" else Path(task).read_text(encoding="utf-8")
     task_obj = Task.model_validate(json.loads(raw))
     settings = get_settings()
@@ -59,6 +55,13 @@ def run(
     _print_summary(report)
     if json_output:
         typer.echo(report.model_dump_json(by_alias=True, indent=2))
+
+
+def _print_banner() -> None:
+    art = figlet_format("AI Dev Agent", font="slant").rstrip("\n")
+    _console.print(Text(art, style="bold cyan"))
+    _console.print(Text("   Task to Pull Request", style="dim"))
+    _console.print()
 
 
 def _print_summary(report: ExecutionReport) -> None:
