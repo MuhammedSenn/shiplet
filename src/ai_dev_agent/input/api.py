@@ -24,8 +24,14 @@ class GitHubIssue(BaseModel):
     body: str | None = None
 
 
+class GitHubRepository(BaseModel):
+    html_url: str
+    default_branch: str = "main"
+
+
 class GitHubIssueEvent(BaseModel):
     issue: GitHubIssue
+    repository: GitHubRepository | None = None
 
 
 @app.post("/api/tasks", response_model=ExecutionReport)
@@ -43,6 +49,16 @@ def github_issue(
     task = Task(
         task_id=str(event.issue.number),
         title=event.issue.title,
-        description=event.issue.body or "",
+        description=_issue_description(event),
     )
     return orchestrator.run(task)
+
+
+def _issue_description(event: GitHubIssueEvent) -> str:
+    body = event.issue.body or ""
+    if event.repository is not None and "repository:" not in body.lower():
+        return (
+            f"Repository: {event.repository.html_url}\n"
+            f"Branch: {event.repository.default_branch}\n\n{body}"
+        )
+    return body
