@@ -1,5 +1,5 @@
 {
-  "taskId": "TASK-200",
-  "title": "Add email validation to user registration",
-  "description": "Repository: https://github.com/MuhammedSenn/demo-user-service-python\nBranch: main\n\nRequirement:\nAdd email format validation to register_user in registration.py. Raise ValueError with message 'Invalid email format' when the email is invalid.\n\nAcceptance Criteria:\n- Invalid email raises ValueError\n- Existing valid registration keeps working\n- Add or update unit tests"
+  "taskId": "TASK-310",
+  "title": "Prevent duplicate user registration",
+  "description": "Repository: https://github.com/MuhammedSenn/demo-user-service-python\nBranch: main\n\nRequirement:\nregister_user in registration.py currently allows the same email to register more than once. Prevent duplicate registrations: if the email is already registered, raise ValueError with message 'User already registered'. A first-time registration must keep working as before.\n\nAcceptance Criteria:\n- Registering a new email succeeds and returns the registered status\n- Registering an already-registered email raises ValueError with message 'User already registered'\n- Add or update unit tests in test_registration.py covering both cases"
 }
