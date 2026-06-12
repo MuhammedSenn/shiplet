@@ -5,6 +5,13 @@ Pull Request. It parses the task, clones the target repository into an isolated 
 it, applies the required change with a real LLM (and adds/updates tests), runs the tests, opens a
 GitHub PR, and emits an execution report.
 
+## Demo
+
+A real end-to-end run against a Python demo repository (task: add email validation to user
+registration) produced this Pull Request, including the AI-generated code change and an added
+test, with all tests passing:
+https://github.com/MuhammedSenn/demo-user-service-python/pull/1
+
 ## 1. Purpose
 
 Take a task input, extract the repository / branch / requirement / acceptance criteria, clone the
