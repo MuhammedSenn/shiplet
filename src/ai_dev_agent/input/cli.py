@@ -58,7 +58,7 @@ def run(
 
 
 def _print_banner() -> None:
-    art = figlet_format("AI Dev Agent", font="slant").rstrip("\n")
+    art = figlet_format("Shiplet Agent", font="slant").rstrip("\n")
     _console.print(Text(art, style="bold cyan"))
     _console.print(Text("   Task to Pull Request", style="dim"))
     _console.print()

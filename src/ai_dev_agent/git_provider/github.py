@@ -97,8 +97,11 @@ class GitHubProvider:
             workspace,
         )
         if result.returncode != 0:
-            if "nothing to commit" in (result.stdout + result.stderr).lower():
-                raise InsufficientChangeError("no changes to commit")
+            output = (result.stdout + result.stderr).lower()
+            if "nothing to commit" in output or "nothing added to commit" in output:
+                raise InsufficientChangeError(
+                    "no changes to commit (the change is already present)"
+                )
             raise GitPushError("git commit failed", details={"stderr": redact(result.stderr)})
 
     def push(self, workspace: Path, branch: str) -> None:

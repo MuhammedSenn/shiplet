@@ -79,6 +79,13 @@ def test_commit_with_no_changes_raises(tmp_path: Path) -> None:
         provider.commit_all(tmp_path, "msg", ["registration.py"])
 
 
+def test_commit_with_only_untracked_files_raises(tmp_path: Path) -> None:
+    git = FakeGit({"commit": (1, "nothing added to commit but untracked files present", "")})
+    provider = GitHubProvider(make_settings(), git_runner=git, pr_api=FakePrApi())
+    with pytest.raises(InsufficientChangeError):
+        provider.commit_all(tmp_path, "msg", ["registration.py"])
+
+
 def test_push_failure_raises_git_push_error(tmp_path: Path) -> None:
     git = FakeGit({"push": (1, "", "fatal: unable to access")})
     provider = GitHubProvider(make_settings(), git_runner=git, pr_api=FakePrApi())
