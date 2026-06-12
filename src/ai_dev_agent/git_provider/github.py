@@ -7,7 +7,7 @@ carries the token (set by RepoManager), so push uses it without re-logging it.
 from __future__ import annotations
 
 import subprocess
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -74,8 +74,8 @@ class GitHubProvider:
     def create_branch(self, workspace: Path, branch: str) -> None:
         self._git(["checkout", "-b", branch], workspace, "failed to create branch")
 
-    def commit_all(self, workspace: Path, message: str) -> None:
-        self._git(["add", "-A"], workspace, "failed to stage changes")
+    def commit_all(self, workspace: Path, message: str, paths: Sequence[str]) -> None:
+        self._git(["add", "--", *paths], workspace, "failed to stage changes")
         result = self._run(
             [
                 "-c",

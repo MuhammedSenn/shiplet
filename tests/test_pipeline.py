@@ -88,7 +88,7 @@ class FakeGitProvider:
     def create_branch(self, workspace: Path, branch: str) -> None:
         pass
 
-    def commit_all(self, workspace: Path, message: str) -> None:
+    def commit_all(self, workspace: Path, message: str, paths: list[str]) -> None:
         pass
 
     def push(self, workspace: Path, branch: str) -> None:

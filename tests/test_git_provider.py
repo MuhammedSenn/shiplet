@@ -63,7 +63,7 @@ def test_branch_commit_push_use_expected_args(tmp_path: Path) -> None:
     git = FakeGit()
     provider = GitHubProvider(make_settings(), git_runner=git, pr_api=FakePrApi())
     provider.create_branch(tmp_path, "ai-agent/TASK-1-x")
-    provider.commit_all(tmp_path, "TASK-1 do x")
+    provider.commit_all(tmp_path, "TASK-1 do x", ["registration.py"])
     provider.push(tmp_path, "ai-agent/TASK-1-x")
 
     assert ["checkout", "-b", "ai-agent/TASK-1-x"] in git.calls
@@ -76,7 +76,7 @@ def test_commit_with_no_changes_raises(tmp_path: Path) -> None:
     git = FakeGit({"commit": (1, "", "nothing to commit, working tree clean")})
     provider = GitHubProvider(make_settings(), git_runner=git, pr_api=FakePrApi())
     with pytest.raises(InsufficientChangeError):
-        provider.commit_all(tmp_path, "msg")
+        provider.commit_all(tmp_path, "msg", ["registration.py"])
 
 
 def test_push_failure_raises_git_push_error(tmp_path: Path) -> None:

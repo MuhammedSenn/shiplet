@@ -7,6 +7,7 @@ on these Protocols so other providers can be added later.
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -31,7 +32,7 @@ class PullRequestApi(Protocol):
 class GitProvider(Protocol):
     def create_branch(self, workspace: Path, branch: str) -> None: ...
 
-    def commit_all(self, workspace: Path, message: str) -> None: ...
+    def commit_all(self, workspace: Path, message: str, paths: Sequence[str]) -> None: ...
 
     def push(self, workspace: Path, branch: str) -> None: ...
 

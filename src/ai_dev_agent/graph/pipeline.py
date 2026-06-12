@@ -225,7 +225,9 @@ class Orchestrator:
 
         self._git.create_branch(workspace, branch)
         self._logger.info("branch_created", branch=branch)
-        self._git.commit_all(workspace, build_commit_message(parsed.task_id, summary))
+        self._git.commit_all(
+            workspace, build_commit_message(parsed.task_id, summary), change.changed_files
+        )
         self._logger.info("commit_created")
         self._git.push(workspace, branch)
 
