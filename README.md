@@ -1,6 +1,6 @@
-# AI Development Agent
+# Shiplet Agent
 
-An AI Development Agent that turns a development task (Jira / GitHub-Issue style) into a reviewed
+Shiplet Agent is an AI development agent that turns a development task (Jira / GitHub-Issue style) into a reviewed
 Pull Request. It parses the task, clones the target repository into an isolated workspace, analyzes
 it, applies the required change with a real LLM (and adds/updates tests), runs the tests, opens a
 GitHub PR, and emits an execution report.
