@@ -1,12 +1,15 @@
-"""CLI entry point: run the full task-to-PR pipeline with a formatted summary."""
+"""CLI: run the task-to-PR pipeline from a JSON task, stdin, or a GitHub issue."""
 
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 import typer
+from github import Auth, Github
 from pyfiglet import figlet_format
 from rich.console import Console
 from rich.panel import Panel
@@ -14,7 +17,7 @@ from rich.text import Text
 
 from ai_dev_agent.config import get_settings
 from ai_dev_agent.graph.pipeline import build_default_orchestrator
-from ai_dev_agent.graph.state import RunOptions
+from ai_dev_agent.graph.state import AgentState, RunOptions
 from ai_dev_agent.models import ExecutionReport, Task
 
 app = typer.Typer(add_completion=False, help="AI Development Agent")
@@ -37,6 +40,9 @@ def run(
     fail_on_test: bool = typer.Option(
         False, "--fail-on-test", help="Do not open a PR if tests fail."
     ),
+    review: bool = typer.Option(
+        False, "--review", help="Show the change and confirm before opening a PR."
+    ),
     json_output: bool = typer.Option(
         False, "--json", help="Also print the raw execution report as JSON."
     ),
@@ -44,17 +50,69 @@ def run(
     _print_banner()
     raw = sys.stdin.read() if task == "-" else Path(task).read_text(encoding="utf-8")
     task_obj = Task.model_validate(json.loads(raw))
-    settings = get_settings()
-    orchestrator = build_default_orchestrator(settings)
-    options = RunOptions(
-        dry_run=dry_run,
-        fail_on_test=fail_on_test,
-        max_fix_attempts=settings.max_fix_attempts,
-    )
-    report = orchestrator.run(task_obj, options)
+    report = _execute(task_obj, _options(dry_run, fail_on_test, review), review)
     _print_summary(report)
     if json_output:
         typer.echo(report.model_dump_json(by_alias=True, indent=2))
+
+
+@app.command()
+def issue(
+    repo: str = typer.Option(..., "--repo", help="Repository URL (must be allowlisted)."),
+    number: int = typer.Option(..., "--number", help="Issue number to resolve."),
+    branch: str = typer.Option(
+        "", "--branch", help="Base branch (default: the repository's default branch)."
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Run everything except push and PR."),
+    fail_on_test: bool = typer.Option(
+        False, "--fail-on-test", help="Do not open a PR if tests fail."
+    ),
+    review: bool = typer.Option(
+        False, "--review", help="Show the change and confirm before opening a PR."
+    ),
+) -> None:
+    _print_banner()
+    settings = get_settings()
+    owner_repo = urlparse(repo).path.strip("/").removesuffix(".git")
+    client = Github(base_url=settings.github_api_url, auth=Auth.Token(settings.github_token))
+    repository = client.get_repo(owner_repo)
+    gh_issue = repository.get_issue(number)
+    base = branch or repository.default_branch
+    description = f"Repository: {repo}\nBranch: {base}\n\n{gh_issue.body or ''}"
+    task = Task(task_id=str(number), title=gh_issue.title, description=description)
+    report = _execute(task, _options(dry_run, fail_on_test, review, issue_number=number), review)
+    _print_summary(report)
+
+
+def _options(
+    dry_run: bool, fail_on_test: bool, review: bool, issue_number: int | None = None
+) -> RunOptions:
+    return RunOptions(
+        dry_run=dry_run,
+        fail_on_test=fail_on_test,
+        require_approval=review,
+        max_fix_attempts=get_settings().max_fix_attempts,
+        issue_number=issue_number,
+    )
+
+
+def _execute(task: Task, options: RunOptions, review: bool) -> ExecutionReport:
+    approver = _interactive_approver if review else None
+    orchestrator = build_default_orchestrator(get_settings(), approver=approver)
+    return orchestrator.run(task, options)
+
+
+def _interactive_approver(state: AgentState) -> bool:
+    diff = subprocess.run(
+        ["git", "-C", str(state["workspace"]), "--no-pager", "diff"],
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout
+    _console.print(
+        Panel(diff.strip() or "(no diff)", title="Proposed change", border_style="yellow")
+    )
+    return typer.confirm("Apply this change and open a Pull Request?")
 
 
 def _print_banner() -> None:

@@ -24,7 +24,7 @@ def test_cli_runs_pipeline_and_prints_report(
 ) -> None:
     report = ExecutionReport(trace_id="t1", task_id="TASK-1", status="success")
     monkeypatch.setattr(
-        cli, "build_default_orchestrator", lambda settings: FakeOrchestrator(report)
+        cli, "build_default_orchestrator", lambda settings, approver=None: FakeOrchestrator(report)
     )
 
     task_file = tmp_path / "task.json"
@@ -42,7 +42,7 @@ def test_cli_runs_pipeline_and_prints_report(
 def test_cli_json_flag_prints_raw_report(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     report = ExecutionReport(trace_id="t1", task_id="TASK-1", status="success")
     monkeypatch.setattr(
-        cli, "build_default_orchestrator", lambda settings: FakeOrchestrator(report)
+        cli, "build_default_orchestrator", lambda settings, approver=None: FakeOrchestrator(report)
     )
 
     task_file = tmp_path / "task.json"

@@ -252,7 +252,9 @@ class Orchestrator:
         return pr
 
 
-def build_default_orchestrator(settings: Settings) -> Orchestrator:
+def build_default_orchestrator(
+    settings: Settings, approver: Approver | None = None
+) -> Orchestrator:
     provider = openai_provider_from_settings(settings)
     return Orchestrator(
         settings,
@@ -266,6 +268,7 @@ def build_default_orchestrator(settings: Settings) -> Orchestrator:
         ),
         test_runner=TestRunner(),
         git_provider=GitHubProvider(settings),
+        approver=approver,
     )
 
 
