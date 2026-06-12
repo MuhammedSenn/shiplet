@@ -71,16 +71,20 @@ Optional (defaults shown):
 ## 6. How to Run
 
 ```bash
-# CLI via the launcher (reliable; independent of the editable install).
-./run.sh run --task task.json
-./run.sh run --task task.json --dry-run        # everything except push and PR
-./run.sh run --task task.json --fail-on-test   # do not open a PR if tests fail
+# CLI: activate the virtualenv once, then use the `shiplet` command.
+source .venv/bin/activate
 
-# Equivalent console script (after `source .venv/bin/activate`):
-#   agent run --task task.json
+shiplet run --task task.json                  # task JSON -> Pull Request
+shiplet run --task task.json --dry-run        # everything except push and PR
+shiplet run --task task.json --fail-on-test   # do not open a PR if tests fail
+shiplet run --task task.json --review         # show the diff and confirm before the PR
+shiplet issue --repo <url> --number 4         # resolve a GitHub issue directly
+shiplet analyze --repo <url> --branch main    # clone and analyze a repo (read-only)
+
+# Fallback launcher (works without activating the venv or the editable install):
+./run.sh run --task task.json
 
 # REST API: POST /api/tasks and a GitHub Issue webhook at /api/webhooks/github/issues.
-source .venv/bin/activate
 uvicorn ai_dev_agent.input.api:app --reload
 ```
 

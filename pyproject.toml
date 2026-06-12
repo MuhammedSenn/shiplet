@@ -28,7 +28,7 @@ dev = [
 ]
 
 [project.scripts]
-agent = "ai_dev_agent.input.cli:app"
+shiplet = "ai_dev_agent.input.cli:app"
 
 [build-system]
 requires = ["hatchling"]
