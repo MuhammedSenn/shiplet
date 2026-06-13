@@ -36,6 +36,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ai_dev_agent"]
+artifacts = ["*.md"]
 
 [tool.ruff]
 line-length = 100

@@ -176,7 +176,7 @@ ai_dev_agent/
   graph/      state.py · pipeline.py
   observability/ logging.py · report.py
   security/   sanitize.py · secrets.py
-prompts/      externalized prompt files · templates/ pr_body.md
+  prompts/    externalized prompt files (packaged) · templates/ pr_body.md
 ```
 
 ## 10. AI Agent Flow
