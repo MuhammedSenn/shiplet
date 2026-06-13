@@ -21,7 +21,7 @@ https://github.com/MuhammedSenn/demo-user-service-python/pull/18
 
 Take a task input, extract the repository / branch / requirement / acceptance criteria, clone the
 repo, use a real AI model to make the scoped code change, run the tests, create a branch and
-commit, open a Pull Request, and report the result. The system is built to be secure, observable,
+commit, open a pull request, and report the result. The system is built to be secure, observable,
 and resilient: every failed step is a typed error with a report entry, and PRs are prepared for
 human review.
 
@@ -181,7 +181,7 @@ ai_dev_agent/
   input/      cli.py · api.py · parser.py
   repo/       manager.py · analyzer.py · profiles/ (python, node)
   ai/         provider.py · openai_provider.py · code_agent.py · context.py · prompts.py
-  test_runner/ runner.py
+  test_runner/ runner.py · docker_runner.py
   git_provider/ base.py · github.py · pr_body.py
   graph/      state.py · pipeline.py
   observability/ logging.py · report.py
