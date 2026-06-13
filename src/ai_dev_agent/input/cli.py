@@ -29,7 +29,12 @@ app = typer.Typer(
 )
 _console = Console()
 
-_STATUS_STYLE = {"success": "green", "tests_failed": "yellow", "failed": "red"}
+_STATUS_STYLE = {
+    "success": "green",
+    "tests_failed": "yellow",
+    "failed": "red",
+    "no_change": "cyan",
+}
 
 
 @app.callback()
@@ -183,6 +188,8 @@ def _print_summary(report: ExecutionReport) -> None:
         lines.append(f"[bold]Changed files:[/bold] {', '.join(report.ai.changed_files) or '-'}")
     if report.pr is not None:
         lines.append(f"[bold]Pull Request:[/bold] {report.pr.url}")
+    if report.note:
+        lines.append(f"[bold]Note:[/bold] {report.note}")
     if report.errors:
         lines.append(f"[bold red]Error:[/bold red] {report.errors[0].get('message', '')}")
     _console.print(Panel("\n".join(lines), title="Execution Report", border_style=style))

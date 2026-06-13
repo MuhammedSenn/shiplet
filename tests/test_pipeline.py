@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ai_dev_agent.ai.code_agent import CodeChangeResult
 from ai_dev_agent.config import Settings
-from ai_dev_agent.errors import RepositoryCloneError
+from ai_dev_agent.errors import InsufficientChangeError, RepositoryCloneError
 from ai_dev_agent.git_provider.base import PullRequestDraft
 from ai_dev_agent.graph.pipeline import Orchestrator
 from ai_dev_agent.graph.state import RunOptions
@@ -197,6 +197,22 @@ def test_clone_error_is_reported() -> None:
     assert report.errors
     assert report.errors[0]["code"] == "repository_clone_failed"
     assert report.pr is None
+
+
+class NoChangeGitProvider(FakeGitProvider):
+    def commit_all(self, workspace: Path, message: str, paths: list[str]) -> None:
+        raise InsufficientChangeError("no changes to commit (the change is already present)")
+
+
+def test_already_present_change_reports_no_change() -> None:
+    git = NoChangeGitProvider()
+    report = make_orchestrator(["passed"], git=git).run(TASK)
+    assert report.status == "no_change"
+    assert report.note is not None
+    assert "already present" in report.note
+    assert report.pr is None
+    assert report.errors == []
+    assert git.pushed is False
 
 
 def test_approval_declined_skips_pr() -> None:

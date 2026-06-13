@@ -39,5 +39,6 @@ class AgentState(TypedDict, total=False):
     test_result: TestResult
     pr: PullRequestInfo
     status: str
+    note: str
     error: dict[str, object]
     timeline: Annotated[list[StepResult], add]

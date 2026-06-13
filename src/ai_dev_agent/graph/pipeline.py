@@ -18,7 +18,7 @@ from ai_dev_agent.ai.code_agent import CodeAgent
 from ai_dev_agent.ai.context import ContextBuilder
 from ai_dev_agent.ai.openai_provider import openai_provider_from_settings
 from ai_dev_agent.config import Settings
-from ai_dev_agent.errors import AgentError
+from ai_dev_agent.errors import AgentError, InsufficientChangeError
 from ai_dev_agent.git_provider.base import (
     GitProvider,
     PullRequestDraft,
@@ -195,6 +195,13 @@ class Orchestrator:
             return {"status": status}
         try:
             pr = self._open_pull_request(state, passed)
+        except InsufficientChangeError as exc:
+            self._logger.info("publish_skipped", reason="no_change")
+            return {
+                "status": "no_change",
+                "note": exc.message,
+                "timeline": [StepResult(step="publish", status="skipped", duration_ms=_ms(start))],
+            }
         except AgentError as exc:
             self._logger.error("publish", code=exc.code, error=exc.message)
             return {

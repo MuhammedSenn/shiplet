@@ -11,7 +11,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-ReportStatus = Literal["success", "tests_failed", "failed"]
+ReportStatus = Literal["success", "tests_failed", "failed", "no_change"]
 StepStatus = Literal["ok", "failed", "skipped"]
 TestStatus = Literal["passed", "failed", "error"]
 
@@ -80,4 +80,5 @@ class ExecutionReport(CamelModel):
     ai: AIUsage | None = None
     test: TestResult | None = None
     pr: PullRequestInfo | None = None
+    note: str | None = None
     errors: list[dict[str, object]] = Field(default_factory=list)

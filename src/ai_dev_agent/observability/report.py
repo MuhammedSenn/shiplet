@@ -33,5 +33,6 @@ def build_execution_report(state: AgentState) -> ExecutionReport:
         ai=ai,
         test=state.get("test_result"),
         pr=state.get("pr"),
+        note=state.get("note"),
         errors=errors,
     )
