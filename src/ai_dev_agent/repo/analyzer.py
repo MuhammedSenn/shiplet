@@ -15,6 +15,8 @@ from ai_dev_agent.repo.profiles.base import LanguageProfile
 from ai_dev_agent.repo.profiles.node import NodeProfile
 from ai_dev_agent.repo.profiles.python import PythonProfile
 
+_DOC_FILES = ("README.md", "README.rst", "README.txt", "README")
+
 
 def default_profiles() -> list[LanguageProfile]:
     return [PythonProfile(), NodeProfile()]
@@ -28,8 +30,16 @@ class RepoAnalyzer:
     def analyze(self, repo_path: Path, requirement: str) -> RepoAnalysis:
         for profile in self._profiles:
             if profile.detect(repo_path):
-                return profile.analyze(repo_path, requirement, self._top_n)
+                analysis = profile.analyze(repo_path, requirement, self._top_n)
+                return self._with_root_docs(repo_path, analysis)
         raise AnalysisError(
             "could not detect a supported language",
             details={"path": str(repo_path)},
         )
+
+    def _with_root_docs(self, repo_path: Path, analysis: RepoAnalysis) -> RepoAnalysis:
+        docs = [name for name in _DOC_FILES if (repo_path / name).is_file()]
+        if not docs:
+            return analysis
+        merged = list(dict.fromkeys([*analysis.relevant_files, *docs]))
+        return analysis.model_copy(update={"relevant_files": merged})

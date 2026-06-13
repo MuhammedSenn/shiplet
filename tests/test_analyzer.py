@@ -35,6 +35,13 @@ def test_python_profile_analysis(tmp_path: Path) -> None:
     assert "pyproject.toml" in analysis.relevant_files
 
 
+def test_readme_is_in_editable_scope(tmp_path: Path) -> None:
+    repo = make_python_repo(tmp_path)
+    (repo / "README.md").write_text("# Project", encoding="utf-8")
+    analysis = RepoAnalyzer().analyze(repo, "Document configuration in the README")
+    assert "README.md" in analysis.relevant_files
+
+
 def test_node_profile_analysis(tmp_path: Path) -> None:
     (tmp_path / "package.json").write_text(
         json.dumps({"dependencies": {"express": "^4"}, "scripts": {"test": "jest"}}),
