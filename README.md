@@ -254,7 +254,7 @@ Improvements for production:
 
 - Harden the Docker sandbox further: pre-build per-language images with dependencies cached so tests
   can run with `--network none`, and run as a non-root container user.
-- Use a secret manager instead of `.env`; add per-model cost tracking.
+- Use a secret manager instead of `.env`.
 - Add a job queue / worker for async task processing and horizontal scaling.
 - Add more `LanguageProfile`s (Java, C#, Go) and language-specific syntax checks.
 - Persist LangGraph checkpoints for resumable, human-in-the-loop approvals.
