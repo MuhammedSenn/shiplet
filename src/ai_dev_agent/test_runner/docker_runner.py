@@ -21,7 +21,15 @@ from ai_dev_agent.security.sanitize import safe_subprocess_env
 
 DockerProcess = Callable[[list[str], int], "subprocess.CompletedProcess[str]"]
 
-_PYTHON = ("python:3.13-slim", "pip install -q --disable-pip-version-check pytest")
+# Install the repository's own dependencies first so its tests can import it,
+# then ensure the test runner is present. Each clause is best-effort; a repo may
+# declare deps in pyproject.toml, requirements.txt, both, or neither.
+_PY_SETUP = (
+    "pip install -q --disable-pip-version-check -e . 2>/dev/null "
+    "|| pip install -q --disable-pip-version-check -r requirements.txt 2>/dev/null || true; "
+    "pip install -q --disable-pip-version-check pytest"
+)
+_PYTHON = ("python:3.13-slim", _PY_SETUP)
 _NODE = ("node:20-slim", "npm install --no-audit --no-fund --silent")
 _IMAGES: dict[str, tuple[str, str]] = {
     "pytest": _PYTHON,
