@@ -7,10 +7,15 @@ GitHub PR, and emits an execution report.
 
 ## Demo
 
-A real end-to-end run against a Python demo repository (task: add email validation to user
-registration) produced this Pull Request, including the AI-generated code change and an added
-test, with all tests passing:
-https://github.com/MuhammedSenn/demo-user-service-python/pull/1
+The clip below shows a full end-to-end run: Shiplet resolves a GitHub issue on a Python demo
+repository (add a `get_user` lookup to the registration module), generates the code change and a
+unit test, runs the tests, and opens a pull request that closes the issue.
+
+![Shiplet end-to-end run](assets/demo.gif)
+
+This run produced the following pull request, with all tests passing and the issue linked via
+`Closes #17`:
+https://github.com/MuhammedSenn/demo-user-service-python/pull/18
 
 ## 1. Purpose
 
