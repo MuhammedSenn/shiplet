@@ -292,6 +292,7 @@ def build_default_orchestrator(
 def _build_test_runner(settings: Settings) -> TestRunner:
     if settings.test_sandbox == "docker":
         if docker_available():
+            get_logger("orchestrator").info("test_sandbox", mode="docker")
             return TestRunner(runner=DockerCommandRunner())
         get_logger("orchestrator").warning("docker_unavailable", fallback="local_test_runner")
     return TestRunner()
