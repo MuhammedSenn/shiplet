@@ -56,7 +56,8 @@ Requirements: Python 3.13, `git`, and network access (GitHub + OpenAI).
 Required:
 
 - `OPENAI_API_KEY` — OpenAI key with access to the configured model.
-- `GITHUB_TOKEN` — token with `Contents: read/write` and `Pull requests: read/write` on the target repo.
+- `GITHUB_TOKEN` — token with `Contents: read/write`, `Pull requests: read/write`, and
+  `Issues: read` (used by `shiplet issue`) on the target repo.
 - `REPO_ALLOWLIST` — comma-separated list of repositories the agent may operate on.
 
 Optional (defaults shown):
@@ -153,6 +154,7 @@ curl -X POST http://127.0.0.1:8000/api/tasks \
     "branch": "ai-agent/TASK-123-add-email-validation-to-user-registration-api",
     "number": 42
   },
+  "note": null,
   "errors": []
 }
 ```
