@@ -22,12 +22,14 @@ class PythonProfile:
         files = list(iter_files(repo_path, _SUFFIXES))
         test_files = [str(path) for path in files if _is_test(path)]
         dependencies = self._dependency_text(repo_path)
+        config_files = [marker for marker in _MARKERS if (repo_path / marker).exists()]
+        ranked = rank_files(files, requirement, top_n)
         return RepoAnalysis(
             language=self.name,
             framework=self._framework(dependencies),
             build_tool=self._build_tool(repo_path),
             test_command=self._test_command(dependencies, test_files),
-            relevant_files=rank_files(files, requirement, top_n),
+            relevant_files=list(dict.fromkeys([*config_files, *ranked])),
             existing_test_files=test_files,
         )
 

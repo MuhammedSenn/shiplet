@@ -29,12 +29,14 @@ class NodeProfile:
         files = list(iter_files(repo_path, _SUFFIXES))
         test_files = [str(path) for path in files if _is_test(path)]
         language = "TypeScript" if (repo_path / "tsconfig.json").exists() else "JavaScript"
+        config_files = [name for name in ("package.json",) if (repo_path / name).exists()]
+        ranked = rank_files(files, requirement, top_n)
         return RepoAnalysis(
             language=language,
             framework=self._framework(package),
             build_tool=self._build_tool(repo_path),
             test_command=self._test_command(package),
-            relevant_files=rank_files(files, requirement, top_n),
+            relevant_files=list(dict.fromkeys([*config_files, *ranked])),
             existing_test_files=test_files,
         )
 

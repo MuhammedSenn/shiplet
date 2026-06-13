@@ -32,6 +32,7 @@ def test_python_profile_analysis(tmp_path: Path) -> None:
     assert analysis.test_command == "pytest"
     assert "tests/test_user_service.py" in analysis.existing_test_files
     assert any("user_service" in path for path in analysis.relevant_files)
+    assert "pyproject.toml" in analysis.relevant_files
 
 
 def test_node_profile_analysis(tmp_path: Path) -> None:
