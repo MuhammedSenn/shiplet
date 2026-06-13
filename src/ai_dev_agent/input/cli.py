@@ -23,7 +23,10 @@ from ai_dev_agent.observability.logging import new_trace_id
 from ai_dev_agent.repo.analyzer import RepoAnalyzer
 from ai_dev_agent.repo.manager import RepoManager
 
-app = typer.Typer(add_completion=False, help="Shiplet Agent: turn a task into a reviewed PR.")
+app = typer.Typer(
+    add_completion=False,
+    help="Shiplet: an AI development agent that turns a task into a reviewed PR.",
+)
 _console = Console()
 
 _STATUS_STYLE = {"success": "green", "tests_failed": "yellow", "failed": "red"}
@@ -31,7 +34,7 @@ _STATUS_STYLE = {"success": "green", "tests_failed": "yellow", "failed": "red"}
 
 @app.callback()
 def main() -> None:
-    """Shiplet Agent."""
+    """Shiplet - AI development agent."""
 
 
 @app.command()
@@ -153,8 +156,9 @@ def _interactive_approver(state: AgentState) -> bool:
 
 
 def _print_banner() -> None:
-    art = figlet_format("Shiplet Agent", font="slant").rstrip("\n")
+    art = figlet_format("Shiplet", font="slant").rstrip("\n")
     _console.print(Text(art, style="bold cyan"))
+    _console.print(Text("AI Development Agent", style="dim cyan"))
     _console.print()
 
 
