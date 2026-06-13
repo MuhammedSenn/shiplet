@@ -199,6 +199,22 @@ def test_clone_error_is_reported() -> None:
     assert report.pr is None
 
 
+class NoChangeCodeAgent:
+    def generate(
+        self, workspace: Path, parsed: ParsedTask, analysis: RepoAnalysis
+    ) -> CodeChangeResult:
+        raise InsufficientChangeError("no safe, in-scope change is necessary")
+
+
+def test_generate_no_change_reports_no_change() -> None:
+    report = make_orchestrator(["passed"], code_agent=NoChangeCodeAgent()).run(TASK)
+    assert report.status == "no_change"
+    assert report.note is not None
+    assert "in-scope change" in report.note
+    assert report.pr is None
+    assert report.errors == []
+
+
 class NoChangeGitProvider(FakeGitProvider):
     def commit_all(self, workspace: Path, message: str, paths: list[str]) -> None:
         raise InsufficientChangeError("no changes to commit (the change is already present)")

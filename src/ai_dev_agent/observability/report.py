@@ -21,9 +21,13 @@ def build_execution_report(state: AgentState) -> ExecutionReport:
         else None
     )
     errors: list[dict[str, object]] = []
+    note = state.get("note")
     error = state.get("error")
     if error is not None:
-        errors.append(error)
+        if error.get("code") == "insufficient_change":
+            note = note or str(error.get("message"))
+        else:
+            errors.append(error)
     return ExecutionReport(
         trace_id=state["trace_id"],
         task_id=state["task"].task_id,
@@ -33,6 +37,6 @@ def build_execution_report(state: AgentState) -> ExecutionReport:
         ai=ai,
         test=state.get("test_result"),
         pr=state.get("pr"),
-        note=state.get("note"),
+        note=note,
         errors=errors,
     )

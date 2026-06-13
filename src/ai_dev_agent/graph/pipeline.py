@@ -116,6 +116,12 @@ class Orchestrator:
             start = time.monotonic()
             try:
                 update = fn(state)
+            except InsufficientChangeError as exc:
+                self._logger.info(name, code=exc.code, reason="no_change")
+                return {
+                    "error": exc.to_entry(),
+                    "timeline": [StepResult(step=name, status="skipped", duration_ms=_ms(start))],
+                }
             except AgentError as exc:
                 self._logger.error(name, code=exc.code, error=exc.message)
                 return {
@@ -181,7 +187,10 @@ class Orchestrator:
         return "publish"
 
     def _publish(self, state: AgentState) -> dict[str, object]:
-        if state.get("error"):
+        error = state.get("error")
+        if error:
+            if error.get("code") == "insufficient_change":
+                return {"status": "no_change", "note": str(error.get("message", ""))}
             return {"status": "failed"}
         start = time.monotonic()
         passed = state["test_result"].status == "passed"
