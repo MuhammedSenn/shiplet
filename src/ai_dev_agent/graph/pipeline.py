@@ -40,6 +40,7 @@ from ai_dev_agent.observability.logging import (
 from ai_dev_agent.observability.report import build_execution_report
 from ai_dev_agent.repo.analyzer import RepoAnalyzer
 from ai_dev_agent.repo.manager import RepoManager
+from ai_dev_agent.test_runner.docker_runner import DockerCommandRunner, docker_available
 from ai_dev_agent.test_runner.runner import TestRunner
 
 NodeFn = Callable[[AgentState], dict[str, object]]
@@ -282,10 +283,18 @@ def build_default_orchestrator(
             ContextBuilder(token_budget=settings.context_token_budget),
             max_changed_files=settings.max_changed_files,
         ),
-        test_runner=TestRunner(),
+        test_runner=_build_test_runner(settings),
         git_provider=GitHubProvider(settings),
         approver=approver,
     )
+
+
+def _build_test_runner(settings: Settings) -> TestRunner:
+    if settings.test_sandbox == "docker":
+        if docker_available():
+            return TestRunner(runner=DockerCommandRunner())
+        get_logger("orchestrator").warning("docker_unavailable", fallback="local_test_runner")
+    return TestRunner()
 
 
 def _ms(start: float) -> int:

@@ -1,13 +1,17 @@
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from ai_dev_agent.ai.code_agent import CodeChangeResult
 from ai_dev_agent.config import Settings
 from ai_dev_agent.errors import InsufficientChangeError, RepositoryCloneError
 from ai_dev_agent.git_provider.base import PullRequestDraft
+from ai_dev_agent.graph import pipeline
 from ai_dev_agent.graph.pipeline import Orchestrator
 from ai_dev_agent.graph.state import RunOptions
 from ai_dev_agent.models import ParsedTask, PullRequestInfo, RepoAnalysis, Task, TestResult
+from ai_dev_agent.test_runner.docker_runner import DockerCommandRunner
 
 PARSED = ParsedTask(
     task_id="TASK-1",
@@ -229,6 +233,18 @@ def test_already_present_change_reports_no_change() -> None:
     assert report.pr is None
     assert report.errors == []
     assert git.pushed is False
+
+
+def test_sandbox_uses_docker_runner_when_available(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(pipeline, "docker_available", lambda: True)
+    runner = pipeline._build_test_runner(Settings(_env_file=None, test_sandbox="docker"))
+    assert isinstance(runner._run, DockerCommandRunner)
+
+
+def test_sandbox_falls_back_to_local_when_docker_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(pipeline, "docker_available", lambda: False)
+    runner = pipeline._build_test_runner(Settings(_env_file=None, test_sandbox="docker"))
+    assert not isinstance(runner._run, DockerCommandRunner)
 
 
 def test_approval_declined_skips_pr() -> None:

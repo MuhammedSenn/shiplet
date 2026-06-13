@@ -65,6 +65,8 @@ Optional (defaults shown):
 - `MAX_CHANGED_FILES=8`
 - `LOG_LEVEL=INFO`
 - `AGENT_GIT_NAME`, `AGENT_GIT_EMAIL` — commit author identity.
+- `TEST_SANDBOX=none` — set to `docker` to run the target repo's tests inside an isolated
+  Docker container instead of a local subprocess (falls back to local if Docker is unavailable).
 
 `.env` is gitignored and never committed.
 
@@ -212,6 +214,11 @@ parse -> clone -> analyze -> generate -> run_tests
 - Context limiting and secret filtering: only ranked relevant files are sent, after a secret scan
   and a sensitive-path denylist (`.env`, keys, etc.).
 - Private repositories: cloned over a token-injected URL that is never logged.
+- Test sandbox (opt-in, `TEST_SANDBOX=docker`): the cloned repo's test suite is third-party code,
+  so it can run inside a throwaway Docker container isolated from the host filesystem, with capped
+  memory/CPU/PIDs and removed on exit. Dependency install needs network, so the default keeps the
+  host filesystem isolated while allowing the bridge network; a stricter `--network none` variant
+  fits repositories whose dependencies are vendored.
 
 ## 12. Known Limitations
 
@@ -221,7 +228,8 @@ parse -> clone -> analyze -> generate -> run_tests
 - AI-generated tests can in principle pass trivially; a test-presence check is enforced, but
   semantic test quality is not guaranteed.
 - Cost in USD is reported as `0.0` (token usage is captured; per-model pricing is not wired in).
-- Tests run in a local subprocess, not a sandbox.
+- Tests run in a local subprocess by default; the Docker sandbox (`TEST_SANDBOX=docker`) isolates
+  execution but needs Docker installed and does not yet fully cut network during dependency install.
 
 ## 13. Behavior on Test Failure and Production Notes
 
@@ -232,7 +240,8 @@ Test-failure strategy: the failing test output is fed back to the model to fix, 
 
 Improvements for production:
 
-- Run tests in a Docker sandbox; pass a scrubbed environment to subprocesses.
+- Harden the Docker sandbox further: pre-build per-language images with dependencies cached so tests
+  can run with `--network none`, and run as a non-root container user.
 - Use a secret manager instead of `.env`; add per-model cost tracking.
 - Add a job queue / worker for async task processing and horizontal scaling.
 - Add more `LanguageProfile`s (Java, C#, Go) and language-specific syntax checks.
@@ -241,5 +250,5 @@ Improvements for production:
 ## Trade-offs and Deliberate Scope-Outs
 
 Out of scope by choice (documented rather than half-built): Jira/Trello webhooks (represented by the
-GitHub Issue trigger), Docker test sandbox, embedding-based repository indexing (replaced by
-keyword/path ranking), and multi-repo tasks.
+GitHub Issue trigger), embedding-based repository indexing (replaced by keyword/path ranking), and
+multi-repo tasks.

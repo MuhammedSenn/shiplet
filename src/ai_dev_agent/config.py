@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     agent_git_name: str = "AI Development Agent"
     agent_git_email: str = "ai-agent@users.noreply.github.com"
+    test_sandbox: Literal["none", "docker"] = "none"
 
     @field_validator("repo_allowlist", mode="before")
     @classmethod
