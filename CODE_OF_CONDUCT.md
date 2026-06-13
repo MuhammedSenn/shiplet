@@ -48,7 +48,8 @@ individual is officially representing the community in public spaces.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the maintainer at **muhammedsnfu@gmail.com**. All complaints will be
+reported to the project maintainer through GitHub
+([@MuhammedSenn](https://github.com/MuhammedSenn)). All complaints will be
 reviewed and investigated promptly and fairly.
 
 ## Attribution

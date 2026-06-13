@@ -1,9 +1,9 @@
 # Shiplet
 
-Shiplet is an AI development agent that turns a development task (Jira / GitHub-Issue style) into a reviewed
-Pull Request. It parses the task, clones the target repository into an isolated workspace, analyzes
-it, applies the required change with a real LLM (and adds/updates tests), runs the tests, opens a
-GitHub PR, and emits an execution report.
+Shiplet is an AI development agent that turns a development task (GitHub-Issue or task-tracker
+style) into a reviewed pull request. It parses the task, clones the target repository into an isolated workspace,
+analyzes it, applies the required change with a real LLM, adds or updates tests, runs the tests,
+opens a GitHub pull request, and emits an execution report.
 
 ## Demo
 
@@ -87,6 +87,9 @@ shiplet run --task task.json --fail-on-test   # do not open a PR if tests fail
 shiplet run --task task.json --review         # show the diff and confirm before the PR
 shiplet issue --repo <url> --number 4         # resolve a GitHub issue directly
 shiplet analyze --repo <url> --branch main    # clone and analyze a repo (read-only)
+
+# Run the target repo's tests inside an isolated Docker container (opt-in; falls back to local):
+TEST_SANDBOX=docker shiplet run --task task.json
 
 # Fallback launcher (works without activating the venv or the editable install):
 ./run.sh run --task task.json

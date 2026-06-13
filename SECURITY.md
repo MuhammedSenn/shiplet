@@ -5,8 +5,9 @@ model, and runs untrusted test code, so security is a first-class concern.
 
 ## Reporting a vulnerability
 
-Please do not open a public issue for security reports. Instead, email
-**muhammedsnfu@gmail.com** with:
+Please do not open a public issue for security reports. Instead, use GitHub's
+private vulnerability reporting: open the repository's **Security** tab and choose
+**Report a vulnerability**. Include:
 
 - a description of the issue and its impact,
 - steps to reproduce, and
