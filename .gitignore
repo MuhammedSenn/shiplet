@@ -28,12 +28,3 @@ htmlcov/
 .DS_Store
 .idea/
 .vscode/
-
-# Internal working files (kept locally, not part of the delivered source)
-CLAUDE.md
-PLAN.md
-docs/
-Senior Developer Challenge.md
-
-# Local task input
-task.json
