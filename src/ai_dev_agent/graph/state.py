@@ -42,3 +42,5 @@ class AgentState(TypedDict, total=False):
     note: str
     error: dict[str, object]
     timeline: Annotated[list[StepResult], add]
+    ai_input_tokens: Annotated[int, add]
+    ai_output_tokens: Annotated[int, add]

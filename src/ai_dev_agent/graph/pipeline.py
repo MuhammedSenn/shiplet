@@ -83,9 +83,11 @@ class Orchestrator:
             "options": opts,
             "attempt": 0,
             "timeline": [],
+            "ai_input_tokens": 0,
+            "ai_output_tokens": 0,
         }
         final = cast(AgentState, self._graph.invoke(initial))
-        report = build_execution_report(final)
+        report = build_execution_report(final, self._settings)
         self._logger.info("completed", status=report.status)
         return report
 
@@ -158,7 +160,11 @@ class Orchestrator:
 
     def _generate(self, state: AgentState) -> dict[str, object]:
         change = self._code_agent.generate(state["workspace"], state["parsed"], state["analysis"])
-        return {"change": change}
+        return {
+            "change": change,
+            "ai_input_tokens": change.input_tokens,
+            "ai_output_tokens": change.output_tokens,
+        }
 
     def _run_tests(self, state: AgentState) -> dict[str, object]:
         result = self._test_runner.run(state["workspace"], state["analysis"].test_command)
@@ -176,7 +182,12 @@ class Orchestrator:
             }
         )
         change = self._code_agent.generate(state["workspace"], augmented, state["analysis"])
-        return {"change": change, "attempt": state["attempt"] + 1}
+        return {
+            "change": change,
+            "attempt": state["attempt"] + 1,
+            "ai_input_tokens": change.input_tokens,
+            "ai_output_tokens": change.output_tokens,
+        }
 
     def _after_tests(self, state: AgentState) -> str:
         if state.get("error"):

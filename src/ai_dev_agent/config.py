@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     agent_git_name: str = "AI Development Agent"
     agent_git_email: str = "ai-agent@users.noreply.github.com"
     test_sandbox: Literal["none", "docker"] = "none"
+    openai_input_cost_per_1m: float = 1.75
+    openai_output_cost_per_1m: float = 14.0
 
     @field_validator("repo_allowlist", mode="before")
     @classmethod

@@ -157,6 +157,9 @@ def test_test_fix_cycle_then_success() -> None:
     )
     assert report.status == "success"
     assert agent.calls == 2
+    assert report.ai is not None
+    assert report.ai.input_tokens == 20
+    assert report.ai.output_tokens == 40
 
 
 def test_max_attempts_publishes_with_warning() -> None:

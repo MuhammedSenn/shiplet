@@ -181,9 +181,10 @@ def _print_summary(report: ExecutionReport) -> None:
     if report.test is not None:
         lines.append(f"[bold]Tests:[/bold] {report.test.status}")
     if report.ai is not None:
+        cost = f"  [dim](${report.ai.cost_usd:.4f})[/dim]" if report.ai.cost_usd else ""
         lines.append(
             f"[bold]Model:[/bold] {report.ai.model}"
-            f"  [dim]{report.ai.input_tokens}+{report.ai.output_tokens} tokens[/dim]"
+            f"  [dim]{report.ai.input_tokens}+{report.ai.output_tokens} tokens[/dim]{cost}"
         )
         lines.append(f"[bold]Changed files:[/bold] {', '.join(report.ai.changed_files) or '-'}")
     if report.pr is not None:

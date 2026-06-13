@@ -4,22 +4,24 @@ from __future__ import annotations
 
 from typing import cast
 
+from ai_dev_agent.config import Settings
 from ai_dev_agent.graph.state import AgentState
 from ai_dev_agent.models import AIUsage, ExecutionReport, ReportStatus
 
 
-def build_execution_report(state: AgentState) -> ExecutionReport:
+def build_execution_report(state: AgentState, settings: Settings | None = None) -> ExecutionReport:
     change = state.get("change")
-    ai = (
-        AIUsage(
+    ai = None
+    if change is not None:
+        input_tokens = state.get("ai_input_tokens") or change.input_tokens
+        output_tokens = state.get("ai_output_tokens") or change.output_tokens
+        ai = AIUsage(
             model=change.model,
             changed_files=change.changed_files,
-            input_tokens=change.input_tokens,
-            output_tokens=change.output_tokens,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cost_usd=_estimate_cost(input_tokens, output_tokens, settings),
         )
-        if change is not None
-        else None
-    )
     errors: list[dict[str, object]] = []
     note = state.get("note")
     error = state.get("error")
@@ -40,3 +42,13 @@ def build_execution_report(state: AgentState) -> ExecutionReport:
         note=note,
         errors=errors,
     )
+
+
+def _estimate_cost(input_tokens: int, output_tokens: int, settings: Settings | None) -> float:
+    if settings is None:
+        return 0.0
+    cost = (
+        input_tokens / 1_000_000 * settings.openai_input_cost_per_1m
+        + output_tokens / 1_000_000 * settings.openai_output_cost_per_1m
+    )
+    return round(cost, 6)

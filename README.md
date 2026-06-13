@@ -72,6 +72,9 @@ Optional (defaults shown):
 - `AGENT_GIT_NAME`, `AGENT_GIT_EMAIL` — commit author identity.
 - `TEST_SANDBOX=none` — set to `docker` to run the target repo's tests inside an isolated
   Docker container instead of a local subprocess (falls back to local if Docker is unavailable).
+- `OPENAI_INPUT_COST_PER_1M=1.75`, `OPENAI_OUTPUT_COST_PER_1M=14.0` — token prices (USD per 1M
+  tokens) used to compute the report's `costUsd`. Defaults are GPT-5.2 list prices; override for
+  other models.
 
 `.env` is gitignored and never committed.
 
@@ -142,7 +145,7 @@ curl -X POST http://127.0.0.1:8000/api/tasks \
     "changedFiles": ["app/users.py", "tests/test_users.py"],
     "inputTokens": 1320,
     "outputTokens": 540,
-    "costUsd": 0.0
+    "costUsd": 0.00987
   },
   "test": {"status": "passed", "command": "pytest", "durationMs": 2470},
   "pr": {
@@ -235,7 +238,8 @@ parse -> clone -> analyze -> generate -> run_tests
 - The AI-output syntax check is currently Python-only (`ast`); other languages rely on the test run.
 - AI-generated tests can in principle pass trivially; a test-presence check is enforced, but
   semantic test quality is not guaranteed.
-- Cost in USD is reported as `0.0` (token usage is captured; per-model pricing is not wired in).
+- Cost in USD is computed from configurable per-1M-token prices (defaulting to GPT-5.2 list prices);
+  it does not account for prompt-caching discounts, so it is a slight upper bound.
 - Tests run in a local subprocess by default; the Docker sandbox (`TEST_SANDBOX=docker`) isolates
   execution but needs Docker installed and does not yet fully cut network during dependency install.
 
